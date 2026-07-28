@@ -9,6 +9,7 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <!-- NU1702: FieldDataPluginFramework.dll is a net472-only assembly referenced directly during migration — expected and acceptable -->
     <NoWarn>$(NoWarn);NU1702</NoWarn>
+    <AquariusFieldDataFrameworkVersion>20.2.5</AquariusFieldDataFrameworkVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
@@ -19,10 +20,15 @@
 	  <!-- 'Private' needed for net10 - FieldDataPluginFramework already loaded into the Default
          AssemblyLoadContext, a second reference fails with an InvalidCastException. -->
     <Reference Include="FieldDataPluginFramework" Condition="'$(TargetFramework)' == 'net10.0'">
-      <HintPath>$(NuGetPackageRoot)\aquarius.fielddataframework\20.2.5\lib\net472\FieldDataPluginFramework.dll</HintPath>
+      <HintPath>$(NuGetPackageRoot)\aquarius.fielddataframework\$(AquariusFieldDataFrameworkVersion)\lib\net472\FieldDataPluginFramework.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <PackageReference Include="Aquarius.FieldDataFramework" Version="20.2.5" Condition="'$(TargetFramework)' == 'net472'" />
+    <PackageReference Include="Aquarius.FieldDataFramework" Version="$(AquariusFieldDataFrameworkVersion)" Condition="'$(TargetFramework)' == 'net472'" />
+    <!-- net10.0 can't PackageReference this net472-only package for compile/runtime (NU1202), but still needs it
+         restored into the global packages folder so the HintPath/tool paths above resolve when building
+         `-f net10.0` alone (a prior net472 build/restore may not have happened yet in that scenario).
+         ExcludeAssets="all" forces the restore without pulling in any compile/runtime/build assets. -->
+    <PackageReference Include="Aquarius.FieldDataFramework" Version="$(AquariusFieldDataFrameworkVersion)" Condition="'$(TargetFramework)' == 'net10.0'" ExcludeAssets="all" GeneratePathProperty="true" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
@@ -54,12 +60,12 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <PluginPackagerExe Condition="'$(TargetFramework)' == 'net472'">$(NuGetPackageRoot)\aquarius.fielddataframework\20.2.5\tools\PluginPackager.exe</PluginPackagerExe>
+    <PluginPackagerExe Condition="'$(TargetFramework)' == 'net472'">$(NuGetPackageRoot)\aquarius.fielddataframework\$(AquariusFieldDataFrameworkVersion)\tools\PluginPackager.exe</PluginPackagerExe>
     <!-- TODO: once Aquarius.FieldDataFramework ships a dual-targeted (net472+net10.0) NuGet package,
          this net10.0 path should point at the real published tools\net10.0 folder instead of a manually-copied local one. -->
-    <PluginPackagerExe Condition="'$(TargetFramework)' == 'net10.0'">$(NuGetPackageRoot)\aquarius.fielddataframework\20.2.5\tools\net10.0\PluginPackager.exe</PluginPackagerExe>
-    <PluginTesterExe Condition="'$(TargetFramework)' == 'net472'">$(NuGetPackageRoot)\aquarius.fielddataframework\20.2.5\tools\PluginTester.exe</PluginTesterExe>
-    <PluginTesterExe Condition="'$(TargetFramework)' == 'net10.0'">$(NuGetPackageRoot)\aquarius.fielddataframework\20.2.5\tools\net10.0\PluginTester.exe</PluginTesterExe>
+    <PluginPackagerExe Condition="'$(TargetFramework)' == 'net10.0'">$(NuGetPackageRoot)\aquarius.fielddataframework\$(AquariusFieldDataFrameworkVersion)\tools\net10.0\PluginPackager.exe</PluginPackagerExe>
+    <PluginTesterExe Condition="'$(TargetFramework)' == 'net472'">$(NuGetPackageRoot)\aquarius.fielddataframework\$(AquariusFieldDataFrameworkVersion)\tools\PluginTester.exe</PluginTesterExe>
+    <PluginTesterExe Condition="'$(TargetFramework)' == 'net10.0'">$(NuGetPackageRoot)\aquarius.fielddataframework\$(AquariusFieldDataFrameworkVersion)\tools\net10.0\PluginTester.exe</PluginTesterExe>
     <PackagedPluginName Condition="'$(TargetFramework)' == 'net472'">$(AssemblyName).plugin</PackagedPluginName>
     <PackagedPluginName Condition="'$(TargetFramework)' == 'net10.0'">$(AssemblyName)-net10.plugin</PackagedPluginName>
   </PropertyGroup>
@@ -69,3 +75,4 @@
     <Exec Command="&quot;$(PluginTesterExe)&quot; /Plugin=&quot;$(TargetPath)&quot; /Data=&quot;$(SolutionDir)..\data\DemoData.ft&quot;" />
   </Target>
 </Project>
+
