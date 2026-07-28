@@ -25,8 +25,8 @@
     <PackageReference Include="Aquarius.FieldDataFramework" Version="20.2.5" Condition="'$(TargetFramework)' == 'net472'" />
   </ItemGroup>
 
-  <ItemGroup>
-    <!-- Required for SharpZipLib on net10.0 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+    <!-- Required for SharpZipLib on net472;-->
     <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.0" />
   </ItemGroup>
 
