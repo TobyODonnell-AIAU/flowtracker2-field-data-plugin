@@ -24,11 +24,6 @@
       <Private>false</Private>
     </Reference>
     <PackageReference Include="Aquarius.FieldDataFramework" Version="$(AquariusFieldDataFrameworkVersion)" Condition="'$(TargetFramework)' == 'net472'" />
-    <!-- net10.0 can't PackageReference this net472-only package for compile/runtime (NU1202), but still needs it
-         restored into the global packages folder so the HintPath/tool paths above resolve when building
-         `-f net10.0` alone (a prior net472 build/restore may not have happened yet in that scenario).
-         ExcludeAssets="all" forces the restore without pulling in any compile/runtime/build assets. -->
-    <PackageReference Include="Aquarius.FieldDataFramework" Version="$(AquariusFieldDataFrameworkVersion)" Condition="'$(TargetFramework)' == 'net10.0'" ExcludeAssets="all" GeneratePathProperty="true" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
@@ -72,7 +67,7 @@
 
   <Target Name="PackageAndTestPlugin" AfterTargets="Build" Condition="Exists('$(PluginPackagerExe)') And Exists('$(PluginTesterExe)')">
     <Exec Command="&quot;$(PluginPackagerExe)&quot; &quot;$(TargetPath)&quot; /OutputPath=&quot;$(ProjectDir)deploy\$(Configuration)\$(PackagedPluginName)&quot;" />
-    <Exec Command="&quot;$(PluginTesterExe)&quot; /Plugin=&quot;$(TargetPath)&quot; /Data=&quot;$(SolutionDir)..\data\DemoData.ft&quot;" />
+    <Exec Command="&quot;$(PluginTesterExe)&quot; /Plugin=&quot;$(TargetPath)&quot; /Data=&quot;$(MSBuildProjectDirectory)\..\..\data\DemoData.ft&quot;" />
   </Target>
 </Project>
 
