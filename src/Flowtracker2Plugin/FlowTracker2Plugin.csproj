@@ -9,7 +9,7 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <!-- NU1702: FieldDataPluginFramework.dll is a net472-only assembly referenced directly during migration — expected and acceptable -->
     <NoWarn>$(NoWarn);NU1702</NoWarn>
-    <AquariusFieldDataFrameworkVersion>20.2.5</AquariusFieldDataFrameworkVersion>
+    <AquariusFieldDataFrameworkVersion>26.3.2</AquariusFieldDataFrameworkVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
@@ -24,6 +24,12 @@
       <Private>false</Private>
     </Reference>
     <PackageReference Include="Aquarius.FieldDataFramework" Version="$(AquariusFieldDataFrameworkVersion)" Condition="'$(TargetFramework)' == 'net472'" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <!-- Forces restore of the net10-only global-packages folder copy the HintPath above
+         depends on, without contributing compile/runtime assets for this TFM. -->
+    <PackageReference Include="Aquarius.FieldDataFramework" Version="$(AquariusFieldDataFrameworkVersion)" ExcludeAssets="all" GeneratePathProperty="true" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
